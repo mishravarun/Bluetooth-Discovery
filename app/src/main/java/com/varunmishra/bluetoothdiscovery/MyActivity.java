@@ -50,8 +50,9 @@ public class MyActivity extends Activity {
                 new IntentFilter(BluetoothDevice.ACTION_FOUND));
         registerReceiver(ActionFoundReceiver,
                 new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
+        registerReceiver(ActionFoundReceiver,
+                new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
     }
-
     @Override
     protected void onDestroy() {
         // TODO Auto-generated method stub
@@ -84,7 +85,9 @@ public class MyActivity extends Activity {
             }else{
                 stateBluetooth.setText("Bluetooth is NOT Enabled!");
                 setBluetooth(true);
-                CheckBlueToothState();
+               // stateBluetooth.setText("Bluetooth is Enabled.");
+
+
             }
         }
     }
@@ -125,6 +128,25 @@ public class MyActivity extends Activity {
                 Toast.makeText(getApplicationContext(),"Entered the Finished ",Toast.LENGTH_SHORT).show();
                 btArrayAdapter.clear();
                 bluetoothAdapter.startDiscovery();
+            }
+            else if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
+                        BluetoothAdapter.ERROR);
+                switch (state) {
+                    case BluetoothAdapter.STATE_OFF:
+                        stateBluetooth.setText("Bluetooth off");
+                        break;
+                    case BluetoothAdapter.STATE_TURNING_OFF:
+                        stateBluetooth.setText("Turning Bluetooth off...");
+                        break;
+                    case BluetoothAdapter.STATE_ON:
+                        stateBluetooth.setText("Bluetooth on");
+                        btnScanDevice.setEnabled(true);
+                        break;
+                    case BluetoothAdapter.STATE_TURNING_ON:
+                        stateBluetooth.setText("Turning Bluetooth on...");
+                        break;
+                }
             }
         }};
 
