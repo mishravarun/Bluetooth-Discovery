@@ -24,7 +24,7 @@ public class MyActivity extends Activity {
     Button btnScanDevice;
     TextView stateBluetooth;
     BluetoothAdapter bluetoothAdapter;
-
+    boolean scanning = false;
     ArrayAdapter<String> btArrayAdapter;
 
     /** Called when the activity is first created. */
@@ -42,21 +42,18 @@ public class MyActivity extends Activity {
         btArrayAdapter = new ArrayAdapter<String>(MyActivity.this, android.R.layout.simple_list_item_1);
         listDevicesFound.setAdapter(btArrayAdapter);
 
-        CheckBlueToothState();
+
 
         btnScanDevice.setOnClickListener(btnScanDeviceOnClickListener);
+        btnScanDevice.setEnabled(true);
 
-        registerReceiver(ActionFoundReceiver,
-                new IntentFilter(BluetoothDevice.ACTION_FOUND));
-        registerReceiver(ActionFoundReceiver,
-                new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
-        registerReceiver(ActionFoundReceiver,
-                new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+
     }
     @Override
     protected void onDestroy() {
         // TODO Auto-generated method stub
         super.onDestroy();
+        if(scanning)
         unregisterReceiver(ActionFoundReceiver);
     }
     public static boolean setBluetooth(boolean enable) {
@@ -81,6 +78,7 @@ public class MyActivity extends Activity {
                 }else{
                     stateBluetooth.setText("Bluetooth is Enabled.");
                     btnScanDevice.setEnabled(true);
+                    bluetoothAdapter.startDiscovery();
                 }
             }else{
                 stateBluetooth.setText("Bluetooth is NOT Enabled!");
@@ -98,9 +96,27 @@ public class MyActivity extends Activity {
         @Override
         public void onClick(View arg0) {
             // TODO Auto-generated method stub
-            btArrayAdapter.clear();
-            bluetoothAdapter.startDiscovery();
+            if(!scanning) {
+                scanning=true;
+                CheckBlueToothState();
+                btnScanDevice.setText("Stop Scanning");
+                registerReceiver(ActionFoundReceiver,
+                        new IntentFilter(BluetoothDevice.ACTION_FOUND));
+                registerReceiver(ActionFoundReceiver,
+                        new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
+                registerReceiver(ActionFoundReceiver,
+                        new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+                btArrayAdapter.clear();
 
+            }
+            else
+            {
+                scanning=false;
+                btnScanDevice.setText("Scan Bluetooth Devices");
+                bluetoothAdapter.cancelDiscovery();
+                unregisterReceiver(ActionFoundReceiver);
+
+            }
         }};
 
     @Override
@@ -142,9 +158,12 @@ public class MyActivity extends Activity {
                     case BluetoothAdapter.STATE_ON:
                         stateBluetooth.setText("Bluetooth on");
                         btnScanDevice.setEnabled(true);
+                        bluetoothAdapter.startDiscovery();
                         break;
                     case BluetoothAdapter.STATE_TURNING_ON:
                         stateBluetooth.setText("Turning Bluetooth on...");
+                        btnScanDevice.setEnabled(false);
+
                         break;
                 }
             }

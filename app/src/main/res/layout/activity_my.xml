@@ -20,13 +20,15 @@
         android:layout_height="wrap_content"
         android:text="Set Discoverable Duration"
         />
+
     <Button
         android:id="@+id/scandevice"
-        android:layout_width="fill_parent"
+        android:layout_width="373dp"
         android:layout_height="wrap_content"
         android:text="Scan Bluetooth Devices"
         android:enabled="false"
         />
+
     <ListView
         android:id="@+id/devicesfound"
         android:layout_width="fill_parent"
